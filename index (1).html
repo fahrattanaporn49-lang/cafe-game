@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>คาเฟ่ความถี่ ม.6</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fdf6ec;--card:#fff;--tx:#2b2118;--mu:#7a6a5a;--bd:#e6d5bf;--ac:#d9480f;--ok:#2f9e44;--no:#e03131;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1511;--card:#2a211a;--tx:#f5ebdd;--mu:#b8a58f;--bd:#4a3a2c;--ac:#ff922b;--ok:#69db7c;--no:#ff8787;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1b1511;--card:#2a211a;--tx:#f5ebdd;--mu:#b8a58f;--bd:#4a3a2c;--ac:#ff922b;--ok:#69db7c;--no:#ff8787;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Noto Sans Thai","Sarabun",system-ui,sans-serif;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:14px}
+h1{font-size:1.4rem;margin:.2em 0}h2{font-size:1.15rem;margin:.3em 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:10px 0}
+.mu{color:var(--mu)}.c{text-align:center}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:10px 14px}
+button.p{background:var(--ac);color:#fff;border:0}button:disabled{opacity:.45}
+input{font:inherit;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);width:100%}
+.av{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;font-size:26px;position:relative;border:2px solid var(--bd)}
+.av i{position:absolute;top:-14px;font-style:normal;font-size:18px}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}.opts button{border:2px solid var(--bd)}.opts button.sel{border-color:var(--ac)}
+.arena{position:relative;height:300px;border-radius:14px;background:repeating-conic-gradient(rgba(180,130,70,.18) 0 25%,rgba(180,130,70,.08) 0 50%) 0 0/48px 48px;border:1px solid var(--bd);overflow:hidden;touch-action:none}
+.st{position:absolute;top:6px;width:13%;text-align:center;font-size:.7rem;transform:translateX(-50%);border:1px solid var(--bd);background:var(--card);border-radius:8px;padding:2px 0}
+.st b{display:block;font-size:1.5rem}.st.near{border-color:var(--ac);box-shadow:0 0 0 2px var(--ac)}
+#me{position:absolute;transition:left .12s,top .12s;transform:translate(-50%,-50%)}
+.pad{display:grid;grid-template-columns:repeat(3,64px);gap:6px;justify-content:center;margin:10px 0}.pad button{height:54px;font-size:1.3rem}
+.bar{display:flex;align-items:center;gap:8px;margin:6px 0}.bar .n{width:110px;flex:none}.bar .t{flex:1;background:var(--bg);border-radius:6px;height:26px}.bar .f{height:100%;border-radius:6px;background:var(--ac);transition:width .4s}.bar .v{width:30px;text-align:right;font-weight:700}
+.tm{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}.tm div{height:100%;background:var(--ac)}
+.row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--bd)}.row .k{width:28px;font-weight:700}.row .s{margin-left:auto;font-weight:700}
+.big{font-size:1.2rem}.ok{color:var(--ok)}.no{color:var(--no)}
+</style></head><body><main id="app"><p class="mu c">กำลังเชื่อมต่อ...</p></main>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getDatabase,ref,set,update,remove,onValue}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+/* ===== 1) วางค่า firebaseConfig ของคุณตรงนี้ (ดูขั้นตอนที่ 3) ===== */
+const firebaseConfig={
+  apiKey:"AIzaSyCn_6A3RqxugtxNLSFVyJCqERENfsnfkno",
+  authDomain:"fahh-7e738.firebaseapp.com",
+  databaseURL:"https://fahh-7e738-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"fahh-7e738",
+  appId:"1:733219229264:web:dd92af63e7509c0885ec11"
+};
+/* ===== 2) รหัสผ่านครู (เปิดหน้าครูด้วย ลิงก์ + #host) ===== */
+const HOST_PASS="2424";
+const DR=[["ชาเขียว","🍵"],["โกโก้","🍫"],["ชาไทย","🥤"],["อเมริกาโน่","☕"],["คาปูชิโน่","🥛"],["ชามะนาว","🍋"],["ชานมไข่มุก","🧋"]];
+const QS=[["คนกินน้ำชาเขียวมีความถี่เท่าไร",0,0],["ความถี่สัมพัทธ์ของคนดื่มโกโก้ในรูปสัดส่วนเป็นเท่าไร",1,1],["ความถี่ของคนดื่มชาไทยเป็นเท่าไร",2,0],["คนดื่มชานมไข่มุกมีความถี่เป็นเท่าไร",6,0],["คนดื่มคาปูชิโน่ความถี่เป็นเท่าไร",4,0]];
+const FACES=["😀","😎","🥳","😺","🤖","🦊"],SHIRTS=["#e03131","#1c7ed6","#2f9e44","#f59f00","#9c36b5","#495057"],HATS=["","🎩","🧢","👑","🎀","🎧"],LIM=20000;
+const $=s=>document.querySelector(s),app=$("#app"),N$=p=>p.length;
+let db,uid,owner,players=[],st={phase:"lobby",q:0},me=null,pos={x:50,y:80},prof={f:0,s:0,h:0},key="",t0=0,lastQ=-1,tmr=null,hostTo=null;
+const av=p=>`<span class="av" style="background:${SHIRTS[p.s]}">${p.h?`<i>${HATS[p.h]}</i>`:""}${FACES[p.f]}</span>`;
+const counts=()=>{const c=DR.map(()=>0);players.forEach(p=>{if(p.d>=0&&p.d!=null)c[p.d]++});return c};
+const bought=()=>players.filter(p=>p.d!=null&&p.d>=0).length;
+const rank=()=>[...players].sort((a,b)=>(b.score||0)-(a.score||0));
+function chart(){const c=counts(),m=Math.max(1,...c);return DR.map((d,i)=>`<div class="bar"><span class="n">${d[1]} ${d[0]}</span><span class="t"><div class="f" style="width:${c[i]/m*100}%"></div></span><span class="v">${c[i]}</span></div>`).join("")+`<p class="mu c">รวม ${bought()} คน</p>`}
+function board(n){return rank().slice(0,n).map((p,i)=>`<div class="row"><span class="k">${i+1}</span>${av(p)}<span class="big">${p.nick}</span><span class="s">${p.score||0}</span></div>`).join("")}
+function choices(q){const c=counts()[QS[q][1]],N=bought(),v=[c];for(const x of[c+1,c-1,c+2,c-2,c+3,c+4]){if(x>=0&&v.length<4&&!v.includes(x))v.push(x)}
+ return v.map(x=>({v:x,t:QS[q][2]?x+"/"+N:String(x),ok:x===c})).sort((a,b)=>((a.v*7+q*3)%5)-((b.v*7+q*3)%5))}
+const setSt=o=>set(ref(db,"settings/game"),o);
+function hostCheck(){if(!owner)return;
+ if(st.phase==="cafe"&&N$(players)&&bought()===N$(players))setSt({phase:"board",q:0});
+ if(st.phase==="q"&&N$(players)&&players.every(p=>p["p"+st.q]!==undefined))setSt({phase:"rev",q:st.q})}
+function render(){
+ const k=[owner?"H":"P",st.phase,st.q,me?1:0,me&&me.d!=null?1:0,(st.phase==="rev"||st.phase==="final"||owner)?players.map(p=>(p.score||0)+(p.d!=null?1:0)+(p["p"+st.q]!==undefined?"a":"")).join():"",me&&me["p"+st.q]!==undefined?"a":""].join("|");
+ if(k===key)return;key=k;clearInterval(tmr);owner?host():player()}
+function host(){const ph=st.phase;let h=`<h1>☕ คาเฟ่ความถี่</h1><div class="card c">`;
+ if(ph==="lobby")h+=`<h2>ห้องรอ — เข้าเกมแล้ว ${N$(players)} คน</h2><div>${players.map(av).join(" ")}</div><button class="p" id="go" ${N$(players)?"":"disabled"}>เปิดคาเฟ่ ให้เดินไปซื้อน้ำ</button> <button id="rs">ล้างผู้เล่นทั้งหมด</button>`;
+ if(ph==="cafe")h+=`<h2>กำลังซื้อน้ำ ${bought()}/${N$(players)} คน</h2><div>${players.map(p=>av(p)+(p.d!=null?"✅":"")).join(" ")}</div><button id="sk">แสดงผลเลย</button>`;
+ if(ph==="board")h+=`<h2>ผลการเลือกซื้อน้ำของทั้งห้อง</h2>${chart()}<button class="p" id="nx">เริ่มโจทย์ข้อ 1</button>`;
+ if(ph==="q"){h+=`<h2>ข้อ ${st.q+1}/5: ${QS[st.q][0]}</h2><p class="big">ตอบแล้ว ${players.filter(p=>p["p"+st.q]!==undefined).length}/${N$(players)}</p><div class="tm"><div id="tb" style="width:100%"></div></div>`}
+ if(ph==="rev")h+=`<h2>ข้อ ${st.q+1}: ${QS[st.q][0]}</h2><p class="big ok">เฉลย: ${choices(st.q).find(c=>c.ok).t}</p><h2>อันดับคะแนน</h2>${board(5)}<button class="p" id="nx">${st.q<4?"ข้อถัดไป":"สรุปผู้ชนะ"}</button>`;
+ if(ph==="final")h+=`<h2>🏆 ผู้ชนะ: ${rank()[0]?rank()[0].nick:""}</h2>${board(30)}<button class="p" id="nw">▶ เล่นรอบใหม่</button>`;
+ if(ph!=="lobby"&&ph!=="final")h+=`<p><button id="nw">รีเซ็ตเกม (เริ่มใหม่)</button></p>`;
+ app.innerHTML=h+"</div>";
+ const b=id=>$(id);
+ if(b("#nw"))b("#nw").onclick=async()=>{if(confirm("เริ่มรอบใหม่? ข้อมูลผู้เล่นทั้งหมดจะถูกล้าง")){await remove(ref(db,"players"));await set(ref(db,"settings/game"),{phase:"lobby",q:0})}};
+ if(b("#go"))b("#go").onclick=()=>setSt({phase:"cafe",q:0});
+ if(b("#rs"))b("#rs").onclick=()=>{if(confirm("ล้างผู้เล่นทั้งหมด?"))remove(ref(db,"players"))};
+ if(b("#sk"))b("#sk").onclick=()=>setSt({phase:"board",q:0});
+ if(b("#nx"))b("#nx").onclick=()=>{if(ph==="board")setSt({phase:"q",q:0,t:Date.now()});else if(st.q<4)setSt({phase:"q",q:st.q+1,t:Date.now()});else setSt({phase:"final",q:4})};
+ if(ph==="q"){const s=Date.now();tmr=setInterval(()=>{const e=Date.now()-s;if($("#tb"))$("#tb").style.width=Math.max(0,100-e/LIM*100)+"%";if(e>LIM+1500){clearInterval(tmr);setSt({phase:"rev",q:st.q})}},200)}
+}
+function player(){
+ if(!me){let h=`<h1>☕ เข้าเกม</h1><div class="card"><p>ตั้งชื่อเล่นและแต่งตัวตัวละคร</p><input id="nk" maxlength="12" placeholder="ชื่อเล่น"><div class="c" style="margin:20px 0" id="pv"></div>`;
+  [["หน้า",FACES,"f"],["เสื้อ",SHIRTS,"s"],["หมวก",HATS,"h"]].forEach(([n,a,kk])=>h+=`<div class="opts"><span class="mu" style="width:44px">${n}</span>${a.map((x,i)=>`<button data-k="${kk}" data-i="${i}" ${kk==="s"?`style="background:${x};width:40px;height:40px"`:""}>${kk==="s"?"":(x||"ไม่มี")}</button>`).join("")}</div>`);
+  app.innerHTML=h+`<button class="p" id="join" style="width:100%">เข้าเกม</button></div>`;
+  const pv=()=>$("#pv").innerHTML=av(prof);pv();
+  app.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{prof[b.dataset.k]=+b.dataset.i;pv()});
+  $("#join").onclick=()=>{const n=$("#nk").value.trim();if(!n){$("#nk").focus();return}set(ref(db,"players/"+uid),{nick:n,...prof,score:0})};return}
+ const ph=st.phase;
+ if(ph==="lobby")return app.innerHTML=`<div class="card c"><h2>${me.nick}</h2>${av(me)}<p class="mu">รอครูเริ่มเกม...</p></div>`;
+ if(ph==="cafe"&&me.d==null)return cafe();
+ if(ph==="cafe")return app.innerHTML=`<div class="card c"><h2>ซื้อ ${DR[me.d][1]} ${DR[me.d][0]} แล้ว</h2><p class="mu">รอเพื่อนซื้อน้ำให้ครบ...</p></div>`;
+ if(ph==="board")return app.innerHTML=`<div class="card"><h2>ผลการเลือกซื้อน้ำของทั้งห้อง</h2>${chart()}<p class="mu c">รอครูเริ่มโจทย์...</p></div>`;
+ if(ph==="q")return ques();
+ if(ph==="rev"){const r=rank().findIndex(p=>p.id===uid)+1,ok=me["p"+st.q]>0;
+  return app.innerHTML=`<div class="card c"><h2 class="${ok?"ok":"no"}">${ok?"ถูกต้อง! +"+me["p"+st.q]:"ข้อนี้ไม่ได้คะแนน"}</h2><p>เฉลย: ${choices(st.q).find(c=>c.ok).t}</p><p class="big">คะแนนรวม ${me.score||0} · อันดับที่ ${r}</p>${board(5)}</div>`}
+ if(ph==="final"){const r=rank().findIndex(p=>p.id===uid)+1;return app.innerHTML=`<div class="card c"><h2>${r===1?"🏆 คุณชนะ!":"อันดับที่ "+r}</h2><p class="big">${me.score||0} คะแนน</p>${board(10)}</div>`}
+}
+function cafe(){
+ app.innerHTML=`<div class="card"><h2>ไปที่คาเฟ่ เลือกซื้อน้ำ 1 อย่าง</h2><div class="arena" id="ar">${DR.map((d,i)=>`<div class="st" id="s${i}" style="left:${(i+.5)/7*100}%"><b>${d[1]}</b>${d[0]}</div>`).join("")}<div id="me">${av(me)}</div></div>
+ <div class="pad"><span></span><button data-d="u">▲</button><span></span><button data-d="l">◀</button><button data-d="d">▼</button><button data-d="r">▶</button></div><button class="p" id="buy" style="width:100%" disabled>เดินไปที่น้ำที่อยากซื้อ</button></div>`;
+ let near=-1;const mv=()=>{$("#me").style.left=pos.x+"%";$("#me").style.top=pos.y+"%";near=-1;DR.forEach((_,i)=>{const on=Math.abs(pos.x-(i+.5)/7*100)<7&&pos.y<42;$("#s"+i).classList.toggle("near",on);if(on)near=i});
+  const b=$("#buy");b.disabled=near<0;b.textContent=near<0?"เดินไปที่น้ำที่อยากซื้อ":"ซื้อ "+DR[near][1]+" "+DR[near][0]+" (เลือกได้ครั้งเดียว)"};
+ const step=d=>{if(d==="u")pos.y=Math.max(30,pos.y-8);if(d==="d")pos.y=Math.min(88,pos.y+8);if(d==="l")pos.x=Math.max(5,pos.x-5);if(d==="r")pos.x=Math.min(95,pos.x+5);mv()};
+ let iv;app.querySelectorAll("[data-d]").forEach(b=>{b.onpointerdown=e=>{e.preventDefault();step(b.dataset.d);clearInterval(iv);iv=setInterval(()=>step(b.dataset.d),130)};["pointerup","pointerleave","pointercancel"].forEach(ev=>b["on"+ev]=()=>clearInterval(iv))});
+ window.onkeydown=e=>{const m={ArrowUp:"u",ArrowDown:"d",ArrowLeft:"l",ArrowRight:"r"}[e.key];if(m)step(m)};
+ $("#buy").onclick=()=>{if(near>=0&&me.d==null){const d=near;$("#buy").disabled=true;update(ref(db,"players/"+uid),{d})}};mv()}
+function ques(){
+ const q=st.q;if(lastQ!==q){lastQ=q;t0=performance.now()}
+ const done=me["p"+q]!==undefined;
+ if(done)return app.innerHTML=`<div class="card c"><h2>ส่งคำตอบแล้ว</h2><p class="mu">รอเพื่อนคนอื่นตอบ...</p></div>`;
+ app.innerHTML=`<div class="card"><p class="mu">ข้อ ${q+1}/5</p><h2>${QS[q][0]}</h2><div class="tm"><div id="tb" style="width:100%"></div></div><div class="opts">${choices(q).map((c,i)=>`<button class="big" data-i="${i}" style="flex:1 1 40%;padding:16px">${c.t}</button>`).join("")}</div></div>`;
+ const cs=choices(q);app.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{const ms=performance.now()-t0,ok=cs[+b.dataset.i].ok,pts=ok?Math.max(100,Math.round(1000*(1-ms/LIM))):0;app.querySelectorAll("[data-i]").forEach(x=>x.disabled=true);
+  update(ref(db,"players/"+uid),{["p"+q]:pts,score:(me.score||0)+pts})});
+ tmr=setInterval(()=>{const e=performance.now()-t0;if($("#tb"))$("#tb").style.width=Math.max(0,100-e/LIM*100)+"%"},200)}
+try{
+ if(false)throw 0;
+ db=getDatabase(initializeApp(firebaseConfig));
+ owner=location.hash==="#host"&&prompt("รหัสผ่านครู")===HOST_PASS;
+ try{uid=localStorage.getItem("uid")||("u"+Math.random().toString(36).slice(2,10));localStorage.setItem("uid",uid)}catch(e){uid="u"+Math.random().toString(36).slice(2,10)}
+ onValue(ref(db,"players"),s=>{players=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));me=players.find(p=>p.id===uid)||null;hostCheck();render()});
+ onValue(ref(db,"settings/game"),s=>{st=s.val()||{phase:"lobby",q:0};hostCheck();render()});
+}catch(e){app.innerHTML='<div class="card c"><h2>ยังไม่ได้ตั้งค่า Firebase</h2><p class="mu">แก้ firebaseConfig ในไฟล์ตามขั้นตอนที่ 3</p></div>'}
+</script></body></html>
